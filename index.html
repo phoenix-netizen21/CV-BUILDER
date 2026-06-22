@@ -1,6 +1,42 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
+  <script>
+    window.errors = [];
+    window.addEventListener('error', function(e) {
+      window.errors.push(e);
+      showErrorsOnScreen();
+    });
+    function showErrorsOnScreen() {
+      if (!document.body) {
+        setTimeout(showErrorsOnScreen, 100);
+        return;
+      }
+      var errorDiv = document.getElementById('debug-error-banner');
+      if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'debug-error-banner';
+        errorDiv.style.position = 'fixed';
+        errorDiv.style.top = '0';
+        errorDiv.style.left = '0';
+        errorDiv.style.width = '100%';
+        errorDiv.style.backgroundColor = '#ef4444';
+        errorDiv.style.color = '#ffffff';
+        errorDiv.style.padding = '16px';
+        errorDiv.style.zIndex = '99999';
+        errorDiv.style.fontFamily = 'monospace';
+        errorDiv.style.fontSize = '14px';
+        errorDiv.style.boxShadow = '0 4px 6px rgba(0,0,0,0.2)';
+        errorDiv.style.maxHeight = '200px';
+        errorDiv.style.overflowY = 'auto';
+        document.body.insertBefore(errorDiv, document.body.firstChild);
+      }
+      errorDiv.innerHTML = '';
+      window.errors.forEach(function(err) {
+        errorDiv.innerHTML += '<div style="margin-bottom:8px;"><strong>Error:</strong> ' + err.message + '<br><small>in ' + err.filename + ' at line ' + err.lineno + ':' + err.colno + '</small></div>';
+      });
+    }
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="AI-Powered ATS-friendly CV Builder. Create, edit, and download professional resumes.">
