@@ -1,358 +1,256 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <script>
-    window.errors = [];
-    window.addEventListener('error', function(e) {
-      window.errors.push(e);
-      showErrorsOnScreen();
-    });
-    function showErrorsOnScreen() {
-      if (!document.body) {
-        setTimeout(showErrorsOnScreen, 100);
-        return;
-      }
-      var errorDiv = document.getElementById('debug-error-banner');
-      if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.id = 'debug-error-banner';
-        errorDiv.style.position = 'fixed';
-        errorDiv.style.top = '0';
-        errorDiv.style.left = '0';
-        errorDiv.style.width = '100%';
-        errorDiv.style.backgroundColor = '#ef4444';
-        errorDiv.style.color = '#ffffff';
-        errorDiv.style.padding = '16px';
-        errorDiv.style.zIndex = '99999';
-        errorDiv.style.fontFamily = 'monospace';
-        errorDiv.style.fontSize = '14px';
-        errorDiv.style.boxShadow = '0 4px 6px rgba(0,0,0,0.2)';
-        errorDiv.style.maxHeight = '200px';
-        errorDiv.style.overflowY = 'auto';
-        document.body.insertBefore(errorDiv, document.body.firstChild);
-      }
-      errorDiv.innerHTML = '';
-      window.errors.forEach(function(err) {
-        errorDiv.innerHTML += '<div style="margin-bottom:8px;"><strong>Error:</strong> ' + err.message + '<br><small>in ' + err.filename + ' at line ' + err.lineno + ':' + err.colno + '</small></div>';
-      });
-    }
-  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="AI-Powered ATS-friendly CV Builder. Create, edit, and download professional resumes.">
-  <title>AI CV Builder - Create Professional Resumes</title>
-  <!-- Google Fonts -->
+  <meta name="description" content="Production-Grade ATS-Friendly CV Builder with Built-in AI Humanizer and Live A4 Preview.">
+  <title>AI CV Builder — Professional Resume Suite</title>
+
+  <!-- Google Fonts: Inter, Outfit, Playfair Display, Source Code Pro, Roboto -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
-  <!-- FontAwesome Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Roboto:wght@400;500;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Stylesheets -->
+
+  <!-- Main Stylesheet -->
   <link rel="stylesheet" href="index.css">
 </head>
 <body>
 
-  <!-- App Header (Global) -->
+  <!-- App Header -->
   <header class="app-header">
-    <div class="header-container">
-      <div class="logo" id="logo-btn">
-        <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
-        <span>AI CV Builder</span>
-      </div>
-      <div class="header-actions">
-        <button id="theme-toggle" class="icon-btn" title="Toggle Light/Dark Mode" aria-label="Toggle dark mode">
-          <i class="fa-solid fa-moon"></i>
+    <div class="header-inner">
+      <!-- Left: Logo & CV Switcher -->
+      <div class="header-left">
+        <button id="header-logo-btn" class="header-logo" title="Return to Dashboard">
+          <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+          <span class="logo-title">CV Builder</span>
         </button>
-        <button id="api-settings-btn" class="secondary-btn" title="Configure AI Keys">
-          <i class="fa-solid fa-gears"></i> AI Config
+
+        <div class="cv-switcher-wrap">
+          <select id="cv-switcher-select" class="cv-switcher-dropdown" title="Switch CV document">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <div class="cv-title-box">
+          <input type="text" id="cv-title-input" class="cv-title-field" value="My Resume" title="Click to rename CV" maxlength="50" />
+          <i class="fa-solid fa-pen-to-square edit-pen-icon"></i>
+        </div>
+      </div>
+
+      <!-- Center: Undo/Redo & Save Status -->
+      <div class="header-center">
+        <div class="undo-redo-group">
+          <button id="btn-undo" class="icon-btn-header" title="Undo (Ctrl+Z)" disabled>
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
+          <button id="btn-redo" class="icon-btn-header" title="Redo (Ctrl+Y)" disabled>
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+        </div>
+
+        <div id="save-status-badge" class="save-status-badge status-saved" title="Autosave status">
+          <i class="fa-solid fa-check"></i> Saved just now
+        </div>
+      </div>
+
+      <!-- Right: Export Actions, AI Config, Theme -->
+      <div class="header-right">
+        <!-- Export Dropdown Menu -->
+        <div class="export-dropdown-wrapper">
+          <button id="btn-export-pdf" class="primary-btn header-export-btn" title="Export as A4 PDF">
+            <i class="fa-solid fa-file-pdf"></i> Download PDF
+          </button>
+          <div class="export-more-buttons">
+            <button id="btn-export-docx" class="ghost-btn-header" title="Export as MS Word (.docx)">
+              <i class="fa-solid fa-file-word"></i> Word
+            </button>
+            <button id="btn-export-json" class="ghost-btn-header" title="Export Raw CV JSON">
+              <i class="fa-solid fa-file-code"></i> JSON
+            </button>
+            <button id="btn-print" class="ghost-btn-header" title="Browser Print (Save as PDF)">
+              <i class="fa-solid fa-print"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- AI Config Modal Trigger -->
+        <button id="ai-config-btn" class="icon-text-btn-header" title="Configure AI Engine & API Keys">
+          <i class="fa-solid fa-microchip"></i>
+          <span>AI Engine</span>
+        </button>
+
+        <!-- Dark/Light Theme Toggle -->
+        <button id="theme-toggle-btn" class="icon-btn-header" title="Toggle Dark/Light Mode" aria-label="Toggle theme">
+          <i class="fa-solid fa-moon"></i>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Sticky Progress Bar Container (Step indicator) -->
-  <div class="sticky-progress-container" id="progress-bar-wrapper" style="display: none;">
-    <div class="progress-bar-track">
-      <div class="progress-bar-fill" id="progress-bar-fill"></div>
-    </div>
-    <div class="progress-steps">
-      <div class="step-dot active" id="step-dot-1" title="Select Category">1</div>
-      <div class="step-dot" id="step-dot-2" title="Fill Details">2</div>
-      <div class="step-dot" id="step-dot-3" title="Customize & Export">3</div>
-    </div>
-  </div>
-
-  <!-- MAIN APP CONTAINER -->
-  <main class="app-content">
-
-    <!-- STEP 1: WELCOME SCREEN -->
-    <section id="step-welcome" class="app-section active">
-      <div class="welcome-hero">
-        <h1 class="welcome-title">AI CV Builder</h1>
-        <p class="welcome-subtitle">Create a professional, ATS-friendly CV in minutes.</p>
-        <div class="welcome-ctas">
-          <button id="btn-create-new" class="primary-btn large-btn">
+  <!-- SCREEN 1: WELCOME / DASHBOARD -->
+  <section id="screen-welcome" class="app-screen">
+    <div class="welcome-container">
+      <div class="welcome-hero-content">
+        <div class="welcome-pill"><i class="fa-solid fa-sparkles"></i> ATS-Engineered &amp; AI-Powered</div>
+        <h1 class="welcome-main-heading">Create Resumes That Win Interviews</h1>
+        <p class="welcome-sub-heading">Build an ATS-optimized CV with live A4 preview, multiple executive templates, and built-in AI Humanizer to polish your authentic accomplishments.</p>
+        
+        <div class="welcome-action-buttons">
+          <button id="btn-welcome-create" class="primary-btn welcome-cta-btn">
             <i class="fa-solid fa-plus"></i> Create New CV
           </button>
-          <button id="btn-view-templates" class="secondary-btn large-btn">
-            <i class="fa-solid fa-images"></i> View Templates
+          <button id="btn-welcome-import" class="secondary-btn welcome-cta-btn">
+            <i class="fa-solid fa-file-import"></i> Import JSON
           </button>
         </div>
       </div>
 
       <!-- Saved Drafts Section -->
-      <div class="saved-cvs-container" id="saved-cvs-container">
-        <h2 class="section-heading"><i class="fa-solid fa-folder-open"></i> Your Saved Drafts</h2>
-        <div class="saved-cvs-grid" id="saved-cvs-grid">
+      <div class="saved-drafts-section">
+        <h3 class="saved-section-title"><i class="fa-solid fa-folder-open"></i> Your CV Documents</h3>
+        <div id="saved-cvs-grid" class="saved-cvs-grid">
           <!-- Dynamically populated -->
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- STEP 2: SELECT CV TYPE -->
-    <section id="step-select-category" class="app-section">
-      <div class="section-header">
-        <button class="back-btn" id="btn-back-to-welcome"><i class="fa-solid fa-arrow-left"></i> Back</button>
-        <h2 class="section-title">Select CV Purpose</h2>
-        <p class="section-subtitle">We will customize fields and formatting optimized for your specific target goal.</p>
-      </div>
-      <div class="categories-grid" id="categories-grid">
-        <!-- Dynamically populated from categories.js -->
-      </div>
-    </section>
+  <!-- SCREEN 2: 3-PANEL EDITOR WORKSPACE -->
+  <section id="screen-editor" class="app-screen active">
+    <div class="workspace-layout">
 
-    <!-- STEP 3: EDITOR WORKSPACE -->
-    <section id="step-editor" class="app-section editor-workspace">
-      <!-- Editor Header -->
-      <div class="editor-header">
-        <div class="editor-header-left">
-          <button class="back-btn" id="btn-back-to-select"><i class="fa-solid fa-chevron-left"></i> Back</button>
-          <div class="cv-title-editor">
-            <input type="text" id="cv-title-input" value="My Resume" maxLength="40" title="Click to edit CV title">
-            <i class="fa-solid fa-pen-to-square edit-icon"></i>
+      <!-- LEFT PANEL: SECTION NAV & FORM EDITOR -->
+      <aside class="workspace-col workspace-col-left" aria-label="CV Sections & Editor">
+        <div class="panel-header-sticky">
+          <div class="panel-title-row">
+            <h4><i class="fa-solid fa-pen-nib icon-accent"></i> Content Editor</h4>
           </div>
         </div>
-        <div class="editor-header-right">
-          <button id="btn-save-manual" class="secondary-btn" title="Manually save progress">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Save
-          </button>
-          <button id="btn-duplicate-cv" class="secondary-btn" title="Duplicate this CV">
-            <i class="fa-solid fa-copy"></i> Duplicate
-          </button>
-          <button id="btn-reset-form" class="danger-btn" title="Clear all inputs">
-            <i class="fa-solid fa-arrow-rotate-left"></i> Reset
-          </button>
+        <div id="panel-editor" class="panel-scroll-content">
+          <!-- Dynamic Form Accordions generated by js/ui/editor.js -->
         </div>
-      </div>
+      </aside>
 
-      <!-- Workspace Body -->
-      <div class="workspace-body">
-        <!-- Left Side: Form inputs -->
-        <div class="workspace-inputs" id="editor-inputs-sidebar">
-          <div class="inputs-scroll">
-            
-            <!-- Accordion sections are dynamically generated here -->
-            <div id="dynamic-form-sections"></div>
-
-            <!-- Rearrange Sections Panel -->
-            <div class="editor-card accordion-card" id="reorder-accordion-card">
-              <div class="accordion-header" id="reorder-header">
-                <h3><i class="fa-solid fa-bars-staggered icon-color"></i> Rearrange CV Sections</h3>
-                <i class="fa-solid fa-chevron-down toggle-arrow"></i>
-              </div>
-              <div class="accordion-body" id="reorder-body">
-                <p class="section-guide-text">Toggle checkboxes to show/hide sections. Drag or click arrows to reorder them in the preview sheet.</p>
-                <ul class="reorder-list" id="reorder-sections-list">
-                  <!-- Dynamically populated -->
-                </ul>
-              </div>
-            </div>
-
+      <!-- CENTER PANEL: LIVE A4 PREVIEW -->
+      <main class="workspace-col workspace-col-center" aria-label="Live A4 Preview">
+        <!-- Sticky Preview Toolbar -->
+        <div class="preview-toolbar">
+          <div class="toolbar-left">
+            <span id="page-count-display" class="page-count-badge">A4 (1 page)</span>
           </div>
-        </div>
 
-        <!-- Right Side: Real-time Preview -->
-        <div class="workspace-preview" id="editor-preview-panel">
-          <!-- Preview Actions sticky toolbar -->
-          <div class="preview-toolbar">
-            <div class="toolbar-group">
-              <label for="template-select">Template:</label>
-              <select id="template-select" class="dropdown-input">
-                <!-- Dynamically populated -->
-              </select>
-            </div>
-            
-            <div class="toolbar-group">
-              <span class="zoom-label">Zoom:</span>
-              <button id="zoom-out-btn" class="zoom-btn" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
-              <span id="zoom-percent">100%</span>
-              <button id="zoom-in-btn" class="zoom-btn" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
-            </div>
-
-            <div class="toolbar-group downloads-group">
-              <button id="btn-download-pdf" class="export-btn pdf-btn" title="Save as PDF">
-                <i class="fa-solid fa-file-pdf"></i> Download PDF
-              </button>
-              <button id="btn-download-docx" class="export-btn docx-btn" title="Download MS Word document">
-                <i class="fa-solid fa-file-word"></i> Download Word
-              </button>
+          <div class="toolbar-center">
+            <div class="zoom-controls-box">
+              <button id="btn-zoom-out" class="zoom-btn" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
+              <span id="zoom-percent-display" class="zoom-percent-text">100%</span>
+              <button id="btn-zoom-in" class="zoom-btn" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
+              <button id="btn-zoom-fit" class="zoom-btn" title="Fit to screen width"><i class="fa-solid fa-expand"></i></button>
+              <button id="btn-zoom-reset" class="zoom-btn" title="Reset Zoom (100%)"><i class="fa-solid fa-arrows-rotate"></i></button>
             </div>
           </div>
 
-          <!-- Preview Sheet Outer (Handles centering & zooming scale) -->
-          <div class="preview-sheet-outer">
-            <div class="preview-sheet" id="cv-preview-container">
+          <div class="toolbar-right">
+            <span class="preview-hint"><i class="fa-solid fa-arrow-pointer"></i> Click section to edit</span>
+          </div>
+        </div>
+
+        <!-- A4 Page Container -->
+        <div class="preview-stage-outer">
+          <div class="preview-stage-inner">
+            <div id="cv-preview-sheet" class="cv-a4-sheet">
               <!-- Rendered template HTML goes here -->
             </div>
           </div>
         </div>
-      </div>
-    </section>
-  </main>
+      </main>
 
-  <!-- MODAL: AI CV COPILOT -->
-  <div class="modal" id="modal-ai-copilot">
-    <div class="modal-overlay"></div>
-    <div class="modal-content large-modal">
-      <div class="modal-header">
-        <h2><i class="fa-solid fa-wand-magic-sparkles sparkle-header"></i> AI CV Copilot - Polish Content</h2>
-        <button class="close-modal-btn" id="btn-close-ai-modal">&times;</button>
-      </div>
-      <div class="modal-body">
-        <p class="modal-info-text">Transform basic descriptions into powerful, results-oriented bullet points using professional action verbs.</p>
-        
-        <div class="ai-editor-grid">
-          <div class="ai-editor-column">
-            <label for="ai-input-text"><strong>Original Content:</strong></label>
-            <textarea id="ai-input-text" placeholder="E.g. wrote code for database, fixed server issues..."></textarea>
-            <div class="char-count-display"><span id="ai-input-char-count">0</span> chars</div>
-          </div>
-          
-          <div class="ai-editor-column">
-            <label for="ai-output-text"><strong>AI Polished Content:</strong></label>
-            <textarea id="ai-output-text" placeholder="Click 'Generate Polish' to see suggestions..." readonly></textarea>
-            <div class="ai-controls-bar">
-              <button id="btn-ai-generate" class="primary-btn">
-                <i class="fa-solid fa-microchip"></i> Generate Polish
-              </button>
-              <button id="btn-ai-apply" class="success-btn" disabled>
-                <i class="fa-solid fa-check"></i> Apply & Save
-              </button>
-            </div>
-          </div>
+      <!-- RIGHT PANEL: DESIGN, AI HUMANIZER & ANALYZER -->
+      <aside class="workspace-col workspace-col-right" aria-label="Design and AI Tools">
+        <!-- Tab Bar -->
+        <div class="right-tabs-bar">
+          <button class="right-tab-btn active" data-tab="design">
+            <i class="fa-solid fa-palette"></i> Design
+          </button>
+          <button class="right-tab-btn" data-tab="humanizer">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Humanizer
+          </button>
+          <button class="right-tab-btn" data-tab="analyzer">
+            <i class="fa-solid fa-chart-simple"></i> Score
+          </button>
         </div>
 
-        <!-- Local suggestion verbs helper -->
-        <div class="action-verbs-helper">
-          <h3><i class="fa-regular fa-lightbulb"></i> Recommended Action Verbs</h3>
-          <div class="verbs-category-grid">
-            <div>
-              <strong>Leadership:</strong>
-              <div class="verbs-list"><span class="verb-tag">Spearheaded</span> <span class="verb-tag">Directed</span> <span class="verb-tag">Orchestrated</span> <span class="verb-tag">Mentored</span></div>
-            </div>
-            <div>
-              <strong>Engineering:</strong>
-              <div class="verbs-list"><span class="verb-tag">Architected</span> <span class="verb-tag">Engineered</span> <span class="verb-tag">Implemented</span> <span class="verb-tag">Deployed</span></div>
-            </div>
-            <div>
-              <strong>Optimizing:</strong>
-              <div class="verbs-list"><span class="verb-tag">Optimized</span> <span class="verb-tag">Streamlined</span> <span class="verb-tag">Accelerated</span> <span class="verb-tag">Redesigned</span></div>
-            </div>
-          </div>
+        <!-- Tab 1: Design Controls -->
+        <div id="tab-content-design" class="right-tab-content active">
+          <div id="panel-design" class="panel-scroll-content"></div>
         </div>
-      </div>
+
+        <!-- Tab 2: AI Humanizer -->
+        <div id="tab-content-humanizer" class="right-tab-content">
+          <div id="panel-humanizer" class="panel-scroll-content"></div>
+        </div>
+
+        <!-- Tab 3: AI CV Analyzer -->
+        <div id="tab-content-analyzer" class="right-tab-content">
+          <div id="panel-analyzer" class="panel-scroll-content"></div>
+        </div>
+      </aside>
+
     </div>
-  </div>
 
-  <!-- MODAL: TEMPLATES PREVIEW (GALLERY) -->
-  <div class="modal" id="modal-templates-gallery">
-    <div class="modal-overlay"></div>
-    <div class="modal-content medium-modal">
-      <div class="modal-header">
-        <h2>Available CV Templates</h2>
-        <button class="close-modal-btn" id="btn-close-templates-modal">&times;</button>
-      </div>
-      <div class="modal-body">
-        <p class="modal-info-text">Choose from our selection of professionally designed, ATS-compliant resume formats.</p>
-        <div class="templates-preview-grid">
-          <div class="template-preview-card" data-template-id="modern_prof">
-            <div class="template-card-visual modern-preview">
-              <div class="line title-l"></div>
-              <div class="line"></div>
-              <div class="split-lines">
-                <div class="col"><div class="line text-l"></div><div class="line text-l"></div></div>
-                <div class="col"><div class="line"></div><div class="line"></div></div>
-              </div>
-            </div>
-            <h3>Modern Professional</h3>
-            <p>Elegant sidebar layout with blue accents, ideal for standing out visually.</p>
-          </div>
+    <!-- Mobile Navigation Bar (Visible on mobile/tablet) -->
+    <nav class="mobile-nav-bar" aria-label="Mobile View Navigation">
+      <button class="mobile-nav-btn active" data-view="editor">
+        <i class="fa-solid fa-pen-nib"></i>
+        <span>Editor</span>
+      </button>
+      <button class="mobile-nav-btn" data-view="preview">
+        <i class="fa-solid fa-file-lines"></i>
+        <span>Preview</span>
+      </button>
+      <button class="mobile-nav-btn" data-view="tools">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <span>Design &amp; AI</span>
+      </button>
+    </nav>
+  </section>
 
-          <div class="template-preview-card" data-template-id="minimal_ats">
-            <div class="template-card-visual minimal-preview">
-              <div class="line title-l center-line"></div>
-              <div class="line text-l center-line"></div>
-              <div class="line"></div>
-              <div class="line"></div>
-              <div class="line"></div>
-            </div>
-            <h3>Minimal ATS</h3>
-            <p>Clean, single-column design. Highly optimized for applicant tracking systems.</p>
-          </div>
-
-          <div class="template-preview-card" data-template-id="corp_exec">
-            <div class="template-card-visual corp-preview">
-              <div class="top-bar"></div>
-              <div class="line title-l"></div>
-              <div class="line"></div>
-              <div class="line"></div>
-            </div>
-            <h3>Corporate Executive</h3>
-            <p>Traditional serif typography, clean spacing, and top banner accents.</p>
-          </div>
-
-          <div class="template-preview-card" data-template-id="academic_clean">
-            <div class="template-card-visual academic-preview">
-              <div class="line title-l center-line"></div>
-              <div class="line text-l"></div>
-              <div class="line"></div>
-              <div class="line"></div>
-            </div>
-            <h3>Academic Clean</h3>
-            <p>Spacious, research-focused format optimized for long publications lists.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: API SETTINGS -->
-  <div class="modal" id="modal-api-settings">
+  <!-- MODAL: AI ENGINE CONFIGURATION -->
+  <div class="modal" id="modal-ai-config">
     <div class="modal-overlay"></div>
     <div class="modal-content small-modal">
       <div class="modal-header">
-        <h2>AI Engine Configuration</h2>
-        <button class="close-modal-btn" id="btn-close-api-modal">&times;</button>
+        <h2><i class="fa-solid fa-microchip icon-accent"></i> AI Engine Setup</h2>
+        <button class="close-modal-btn" id="btn-close-ai-config">&times;</button>
       </div>
       <div class="modal-body">
-        <p class="modal-info-text">Choose between instant local rule-based suggestions, or link your private AI API Keys for advanced generative polishing.</p>
+        <p class="modal-info-text">Choose between the instant offline Smart Linguistic Engine, or enter your personal Gemini / OpenAI API key for cloud generative AI.</p>
         
-        <form id="api-config-form">
-          <div class="form-group">
-            <label for="ai-provider-select">AI Provider:</label>
-            <select id="ai-provider-select" class="dropdown-input">
-              <option value="local">Local Smart Polish (No API key needed)</option>
-              <option value="gemini">Gemini 1.5 Flash (Google Cloud Key)</option>
-              <option value="openai">OpenAI GPT-4o-mini (OpenAI Key)</option>
+        <form id="form-ai-config">
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label for="ai-provider-select">Selected AI Provider:</label>
+            <select id="ai-provider-select" class="form-control">
+              <option value="local">🚀 Local Smart Engine (Offline, No API Key needed)</option>
+              <option value="gemini">✨ Google Gemini 1.5 Flash (Free / Paid Google Key)</option>
+              <option value="openai">🤖 OpenAI GPT-4o-mini (OpenAI Key)</option>
             </select>
           </div>
-          
-          <div class="form-group" id="api-key-group" style="display: none;">
-            <label for="api-key-input">API Key:</label>
-            <input type="password" id="api-key-input" placeholder="Paste your api key here..." class="text-input">
-            <small class="help-text"><i class="fa-solid fa-shield-halved"></i> Key is saved ONLY in your browser storage and sent directly to Google/OpenAI.</small>
+
+          <div class="form-group" id="gemini-key-group" style="display: none; margin-bottom: 16px;">
+            <label for="gemini-key-input">Gemini API Key:</label>
+            <input type="password" id="gemini-key-input" class="form-control" placeholder="AIzaSy..." />
+            <small class="help-text"><i class="fa-solid fa-shield-halved"></i> Stored strictly in your browser localStorage.</small>
           </div>
-          
+
+          <div class="form-group" id="openai-key-group" style="display: none; margin-bottom: 16px;">
+            <label for="openai-key-input">OpenAI API Key:</label>
+            <input type="password" id="openai-key-input" class="form-control" placeholder="sk-..." />
+            <small class="help-text"><i class="fa-solid fa-shield-halved"></i> Stored strictly in your browser localStorage.</small>
+          </div>
+
           <div class="form-actions-row">
             <button type="submit" class="primary-btn">Save Configuration</button>
           </div>
@@ -361,18 +259,35 @@
     </div>
   </div>
 
-  <!-- Dynamic Notification Toast Container -->
-  <div class="toast-container" id="toast-container"></div>
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
 
-  <!-- Dependency Libraries from CDNs will be loaded dynamically on export -->
-
-  <!-- Application Modules -->
-  <script src="categories.js"></script>
-  <script src="ai-generator.js"></script>
-  <script src="templates.js"></script>
-  <script src="storage.js"></script>
-  <script src="docx-generator.js"></script>
+  <!-- Application Scripts Loaded in Dependency Order -->
   <script src="lightfall.js"></script>
-  <script src="app.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/templates/engine.js"></script>
+  <script src="js/templates/minimal.js"></script>
+  <script src="js/templates/modern.js"></script>
+  <script src="js/templates/corporate.js"></script>
+  <script src="js/templates/academic.js"></script>
+  <script src="js/templates/creative.js"></script>
+  <script src="js/ai/prompts.js"></script>
+  <script src="js/ai/local-engine.js"></script>
+  <script src="js/ai/api-client.js"></script>
+  <script src="js/ai/humanizer.js"></script>
+  <script src="js/ai/analyzer.js"></script>
+  <script src="js/export/pdf-export.js"></script>
+  <script src="js/export/docx-export.js"></script>
+  <script src="js/export/json-export.js"></script>
+  <script src="js/ui/toast.js"></script>
+  <script src="js/ui/editor.js"></script>
+  <script src="js/ui/preview.js"></script>
+  <script src="js/ui/design-panel.js"></script>
+  <script src="js/ui/humanizer-panel.js"></script>
+  <script src="js/ui/analyzer-panel.js"></script>
+  <script src="js/ui/cv-manager.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
