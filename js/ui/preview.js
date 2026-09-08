@@ -95,8 +95,8 @@
   function fitWidth(containerWidth) {
     // 210mm in pixels at 96 DPI is approx 794px
     const a4WidthPx = 794;
-    const available = (containerWidth || 800) - 40;
-    const computed = Math.min(130, Math.max(50, Math.round((available / a4WidthPx) * 100)));
+    const available = (containerWidth || (window.innerWidth <= 992 ? window.innerWidth : 800)) - 32;
+    const computed = Math.min(130, Math.max(30, Math.round((available / a4WidthPx) * 100)));
     currentZoom = computed;
     applyZoom();
   }
@@ -115,17 +115,24 @@
   }
 
   function scrollToEditorSection(secId) {
-    const targetCard = document.querySelector(`.editor-card[data-section-id="${secId}"]`);
-    if (targetCard) {
-      targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      targetCard.classList.add('open');
-
-      // Flash highlight border
-      targetCard.classList.add('card-highlight-flash');
-      setTimeout(() => {
-        targetCard.classList.remove('card-highlight-flash');
-      }, 1200);
+    // On mobile, switch to editor view first
+    if (typeof window.switchMobileWorkspaceView === 'function' && window.innerWidth <= 992) {
+      window.switchMobileWorkspaceView('editor');
     }
+
+    setTimeout(() => {
+      const targetCard = document.querySelector(`.editor-card[data-section-id="${secId}"]`);
+      if (targetCard) {
+        targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        targetCard.classList.add('open');
+
+        // Flash highlight border
+        targetCard.classList.add('card-highlight-flash');
+        setTimeout(() => {
+          targetCard.classList.remove('card-highlight-flash');
+        }, 1200);
+      }
+    }, 50);
   }
 
   function updatePageCount() {

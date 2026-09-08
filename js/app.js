@@ -112,6 +112,13 @@ document.addEventListener('DOMContentLoaded', () => {
   function showEditorScreen() {
     screenWelcome.classList.remove('active');
     screenEditor.classList.add('active');
+
+    // On mobile, ensure the active view is set (defaults to editor)
+    if (window.innerWidth <= 992 && typeof switchMobileWorkspaceView === 'function') {
+      const activeBtn = document.querySelector('.mobile-nav-btn.active');
+      const view = activeBtn ? activeBtn.dataset.view : 'editor';
+      switchMobileWorkspaceView(view);
+    }
   }
 
   function loadCVIntoWorkspace(cvId) {
@@ -130,6 +137,9 @@ document.addEventListener('DOMContentLoaded', () => {
       onHumanizeRequest: (targetData) => {
         // Switch right panel to Humanizer tab and set target
         switchRightPanelTab('humanizer');
+        if (window.innerWidth <= 992 && typeof window.switchMobileWorkspaceView === 'function') {
+          window.switchMobileWorkspaceView('tools');
+        }
         HumanizerPanel.setTarget(targetData);
       }
     });
@@ -176,25 +186,58 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- MOBILE NAVIGATION BAR ---
+  function switchMobileWorkspaceView(view) {
+    const colLeft = document.querySelector('.workspace-col-left');
+    const colCenter = document.querySelector('.workspace-col-center');
+    const colRight = document.querySelector('.workspace-col-right');
+    if (!colLeft || !colCenter || !colRight) return;
+
+    mobileNavBtns.forEach(b => {
+      b.classList.toggle('active', b.dataset.view === view);
+    });
+
+    colLeft.classList.remove('mobile-active');
+    colCenter.classList.remove('mobile-active');
+    colRight.classList.remove('mobile-active');
+
+    if (view === 'editor') {
+      colLeft.classList.add('mobile-active');
+    } else if (view === 'preview') {
+      colCenter.classList.add('mobile-active');
+      // Auto fit width to mobile screen
+      setTimeout(() => {
+        if (Preview && typeof Preview.fitWidth === 'function') {
+          Preview.fitWidth(colCenter.clientWidth || window.innerWidth);
+        }
+      }, 50);
+    } else if (view === 'tools') {
+      colRight.classList.add('mobile-active');
+    }
+  }
+
+  // Expose globally for preview click-to-edit and other UI actions
+  window.switchMobileWorkspaceView = switchMobileWorkspaceView;
+
   function setupMobileNav() {
     mobileNavBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         const view = btn.dataset.view;
-        mobileNavBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        document.querySelector('.workspace-col-left').classList.remove('mobile-active');
-        document.querySelector('.workspace-col-center').classList.remove('mobile-active');
-        document.querySelector('.workspace-col-right').classList.remove('mobile-active');
-
-        if (view === 'editor') {
-          document.querySelector('.workspace-col-left').classList.add('mobile-active');
-        } else if (view === 'preview') {
-          document.querySelector('.workspace-col-center').classList.add('mobile-active');
-        } else if (view === 'tools') {
-          document.querySelector('.workspace-col-right').classList.add('mobile-active');
-        }
+        switchMobileWorkspaceView(view);
       });
+    });
+
+    // Handle orientation change and resize
+    window.addEventListener('resize', () => {
+      if (window.innerWidth <= 992) {
+        const activeBtn = document.querySelector('.mobile-nav-btn.active');
+        const view = activeBtn ? activeBtn.dataset.view : 'editor';
+        if (view === 'preview') {
+          const colCenter = document.querySelector('.workspace-col-center');
+          if (Preview && typeof Preview.fitWidth === 'function' && colCenter) {
+            Preview.fitWidth(colCenter.clientWidth || window.innerWidth);
+          }
+        }
+      }
     });
   }
 
@@ -268,13 +311,13 @@ document.addEventListener('DOMContentLoaded', () => {
   State.subscribeStatus((status) => {
     if (!saveStatusBadge) return;
     if (status === 'saved') {
-      saveStatusBadge.innerHTML = '<i class="fa-solid fa-check"></i> Saved just now';
+      saveStatusBadge.innerHTML = '<i class="fa-solid fa-check"></i> <span class="save-status-text">Saved just now</span>';
       saveStatusBadge.className = 'save-status-badge status-saved';
     } else if (status === 'saving') {
-      saveStatusBadge.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+      saveStatusBadge.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span class="save-status-text">Saving...</span>';
       saveStatusBadge.className = 'save-status-badge status-saving';
     } else if (status === 'dirty') {
-      saveStatusBadge.innerHTML = '<i class="fa-solid fa-pen"></i> Unsaved changes';
+      saveStatusBadge.innerHTML = '<i class="fa-solid fa-pen"></i> <span class="save-status-text">Unsaved</span>';
       saveStatusBadge.className = 'save-status-badge status-dirty';
     }
   });

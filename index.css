@@ -429,6 +429,9 @@ textarea.form-control {
   padding: 6px 14px;
   font-size: 12.5px;
 }
+.export-label-short {
+  display: none;
+}
 .export-more-buttons {
   display: flex;
   align-items: center;
@@ -1764,6 +1767,9 @@ textarea.form-control {
 
 /* ---------------------------------------------------- */
 /* RESPONSIVE BREAKPOINTS */
+/* ---------------------------------------------------- */
+/* RESPONSIVE BREAKPOINTS */
+
 @media (max-width: 1200px) {
   :root {
     --panel-width-left: 360px;
@@ -1771,23 +1777,343 @@ textarea.form-control {
   }
 }
 
+/* TABLET & MOBILE VIEWPORT (<= 992px) */
 @media (max-width: 992px) {
+  :root {
+    --header-height: 56px;
+  }
+
+  /* Header adjustments */
+  .app-header {
+    height: 56px;
+  }
+  .header-inner {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .header-left {
+    gap: 6px;
+  }
+  .header-right {
+    gap: 6px;
+  }
+  .cv-title-box {
+    display: none;
+  }
+  .export-more-buttons {
+    display: none;
+  }
+  .export-label-full {
+    display: none;
+  }
+  .export-label-short {
+    display: inline;
+  }
+  .header-export-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  .header-btn-label {
+    display: none;
+  }
+  .icon-text-btn-header {
+    padding: 6px 8px;
+  }
+
+  /* Screen height considering 56px bottom nav */
+  .app-screen {
+    height: calc(100vh - 56px);
+  }
+
+  /* Mobile Bottom Navigation Bar */
   .mobile-nav-bar {
     display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 56px;
+    background-color: var(--bg-secondary);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border-color);
+    z-index: 1000;
   }
   .workspace-layout {
     height: calc(100% - 56px);
   }
+
+  /* 3-Panel Single-Column View Switching */
   .workspace-col {
     display: none !important;
     width: 100% !important;
     flex: 1 1 100% !important;
+    height: 100%;
   }
   .workspace-col.mobile-active {
     display: flex !important;
   }
-  .cv-title-box { display: none; }
-  .export-more-buttons { display: none; }
+
+  /* Left Panel (Editor) on Mobile */
+  .workspace-col-left .panel-scroll-content {
+    padding: 14px 12px 36px;
+  }
+
+  /* Center Panel (Live Preview) on Mobile */
+  .workspace-col-center .preview-toolbar {
+    height: 42px;
+    padding: 0 10px;
+    gap: 6px;
+  }
+  .preview-hint {
+    display: none;
+  }
+  .preview-stage-outer {
+    padding: 14px 8px 40px;
+  }
+
+  /* Right Panel (Design & AI) on Mobile */
+  .workspace-col-right {
+    border-left: none;
+  }
+  .right-tabs-bar {
+    height: 42px;
+  }
+  .right-tab-btn {
+    font-size: 11.5px;
+  }
+  .workspace-col-right .panel-scroll-content {
+    padding: 14px 12px 36px;
+  }
+}
+
+/* SMARTPHONE BREAKPOINT (<= 640px) */
+@media (max-width: 640px) {
+  .header-inner {
+    padding: 0 8px;
+    gap: 6px;
+  }
+  .header-left {
+    gap: 4px;
+  }
+  .header-right {
+    gap: 4px;
+  }
+  .cv-switcher-dropdown {
+    max-width: 120px;
+    font-size: 11.5px;
+    padding: 4px 6px;
+  }
+  .save-status-text {
+    display: none;
+  }
+  .save-status-badge {
+    padding: 4px 6px;
+    font-size: 0;
+    min-width: 28px;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+  }
+  .save-status-badge i {
+    font-size: 12px;
+    margin: 0;
+  }
+  .undo-redo-group {
+    gap: 2px;
+  }
+  .icon-btn-header {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+  .header-export-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  /* Form Elements: Stack Two-Col Grids to Single Column */
+  .form-grid-two-col {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .form-grid-two-col .col-span-2 {
+    grid-column: span 1;
+  }
+  .entry-fields-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .design-field-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .form-control {
+    font-size: 13px;
+    min-height: 38px;
+  }
+  textarea.form-control {
+    min-height: 80px;
+    font-size: 13px;
+  }
+
+  /* Section Management Toolbar */
+  .editor-sections-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .sections-toolbar-actions {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 6px;
+  }
+  .sections-toolbar-actions button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* Modals on Small Screens */
+  .modal {
+    padding: 8px;
+  }
+  .small-modal,
+  .medium-modal,
+  .large-modal {
+    width: 100% !important;
+    max-width: calc(100vw - 16px) !important;
+    margin: 0 auto !important;
+  }
+  .modal-content {
+    max-height: 90vh;
+    border-radius: var(--radius-md);
+  }
+  .modal-header {
+    padding: 12px 14px;
+  }
+  .modal-header h2 {
+    font-size: 14.5px;
+  }
+  .modal-body {
+    padding: 14px 12px;
+  }
+  .category-preset-grid,
+  .add-sections-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .category-choice-card,
+  .add-section-card {
+    padding: 10px;
+  }
+
+  /* Welcome Screen on Mobile */
+  .welcome-container {
+    padding: 16px 8px 36px;
+  }
+  .welcome-hero-content {
+    padding: 20px 6px 24px;
+  }
+  .welcome-pill {
+    font-size: 11px;
+    padding: 4px 10px;
+    margin-bottom: 12px;
+  }
+  .welcome-main-heading {
+    font-size: 27px;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .welcome-sub-heading {
+    font-size: 13.5px;
+    margin-bottom: 20px;
+    line-height: 1.45;
+  }
+  .welcome-action-buttons {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+  .welcome-cta-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+  .saved-drafts-section {
+    padding: 16px 12px;
+  }
+  .saved-section-title {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+  .saved-cvs-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .saved-card-actions {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .saved-card-actions button {
+    font-size: 11.5px;
+  }
+
+  /* Template Selection Grid on Mobile */
+  .template-choice-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .template-choice-card {
+    padding: 8px 6px;
+  }
+  .template-mini-thumbnail {
+    height: 48px;
+  }
+  .template-choice-name {
+    font-size: 10.5px;
+  }
+
+  /* AI Humanizer Controls on Mobile */
+  .humanizer-actions-bar {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .humanizer-actions-bar button {
+    width: 100%;
+  }
+  .comparison-textarea {
+    height: 95px;
+  }
+}
+
+/* ULTRA COMPACT MOBILE (<= 440px) */
+@media (max-width: 440px) {
+  .logo-title {
+    display: none;
+  }
+  .cv-switcher-dropdown {
+    max-width: 95px;
+    font-size: 10.5px;
+  }
+  .export-label-short {
+    display: none;
+  }
+  .header-export-btn {
+    padding: 5px 7px;
+  }
+  .icon-btn-header {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+  .welcome-main-heading {
+    font-size: 24px;
+  }
+  .page-count-badge {
+    display: none;
+  }
 }
 
 /* ==================================================== */
