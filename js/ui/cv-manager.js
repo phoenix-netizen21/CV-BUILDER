@@ -85,6 +85,18 @@
         }
       });
     });
+
+    if (typeof MagicBento !== 'undefined' && MagicBento.attach) {
+      MagicBento.attach(containerEl, {
+        cardSelector: '.saved-cv-card',
+        glowColor: '132, 0, 255',
+        particleCount: 10,
+        spotlightRadius: 400,
+        clickEffect: true,
+        enableBorderGlow: true,
+        enableStars: true
+      });
+    }
   }
 
   // Populate header switcher dropdown
@@ -160,6 +172,18 @@
 
       grid.appendChild(card);
     });
+
+    if (typeof MagicBento !== 'undefined' && MagicBento.attach) {
+      MagicBento.attach(grid, {
+        cardSelector: '.category-choice-card',
+        glowColor: '132, 0, 255',
+        particleCount: 8,
+        spotlightRadius: 360,
+        clickEffect: true,
+        enableBorderGlow: true,
+        enableStars: true
+      });
+    }
 
     modal.classList.add('open');
   }

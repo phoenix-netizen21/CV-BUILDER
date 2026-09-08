@@ -141,6 +141,19 @@
       });
     });
 
+    // Magic Bento Effect on Template Choices
+    if (typeof MagicBento !== 'undefined' && MagicBento.attach) {
+      MagicBento.attach(containerEl.querySelector('.template-choice-grid'), {
+        cardSelector: '.template-choice-card',
+        glowColor: '132, 0, 255',
+        particleCount: 8,
+        spotlightRadius: 320,
+        clickEffect: true,
+        enableBorderGlow: true,
+        enableStars: true
+      });
+    }
+
     // Color Swatches
     containerEl.querySelectorAll('.color-swatch-btn').forEach(btn => {
       btn.addEventListener('click', () => {

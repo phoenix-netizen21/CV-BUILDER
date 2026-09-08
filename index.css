@@ -2208,6 +2208,141 @@ textarea.form-control {
 }
 
 /* ==================================================== */
+/* MAGIC BENTO EFFECT (Spotlight, Border Glow, Particles) */
+/* ==================================================== */
+
+.bento-section {
+  position: relative;
+}
+
+/* Magic Bento Card Container */
+.magic-bento-card,
+.template-choice-card,
+.category-choice-card,
+.add-section-card,
+.saved-cv-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --glow-intensity: 0;
+  --glow-radius: 350px;
+  --glow-color: 132, 0, 255;
+}
+
+.magic-bento-card > *,
+.template-choice-card > *,
+.category-choice-card > *,
+.add-section-card > *,
+.saved-cv-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+.magic-bento-card:hover,
+.template-choice-card:hover,
+.category-choice-card:hover,
+.add-section-card:hover:not(.disabled),
+.saved-cv-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(132, 0, 255, 0.12), 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* Ambient Inner Spotlight */
+.magic-bento-card::before,
+.template-choice-card::before,
+.category-choice-card::before,
+.add-section-card:not(.disabled)::before,
+.saved-cv-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    var(--glow-radius, 350px) circle at var(--glow-x, 50%) var(--glow-y, 50%),
+    rgba(var(--glow-color, 132, 0, 255), calc(var(--glow-intensity, 0) * 0.12)) 0%,
+    rgba(var(--glow-color, 132, 0, 255), calc(var(--glow-intensity, 0) * 0.04)) 40%,
+    transparent 70%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+/* Border Glow Effect using Mask Composite */
+.magic-bento-card--border-glow::after,
+.template-choice-card::after,
+.category-choice-card::after,
+.add-section-card:not(.disabled)::after,
+.saved-cv-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  background: radial-gradient(
+    var(--glow-radius, 350px) circle at var(--glow-x, 50%) var(--glow-y, 50%),
+    rgba(var(--glow-color, 132, 0, 255), calc(var(--glow-intensity, 0) * 0.95)) 0%,
+    rgba(var(--glow-color, 132, 0, 255), calc(var(--glow-intensity, 0) * 0.45)) 35%,
+    transparent 65%
+  );
+  border-radius: inherit;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  z-index: 4;
+}
+
+/* Active Choice Accentuation */
+.template-choice-card.active::after {
+  background: radial-gradient(
+    380px circle at 50% 50%,
+    rgba(var(--glow-color, 132, 0, 255), 0.95) 0%,
+    rgba(var(--glow-color, 132, 0, 255), 0.5) 40%,
+    transparent 70%
+  );
+}
+
+/* Magic Bento Particles */
+.magic-bento-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+}
+.magic-bento-particle::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: rgba(132, 0, 255, 0.35);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+/* Magic Bento Click Ripple */
+.magic-bento-ripple {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ==================================================== */
 /* STRICT PRINT LAYOUT OVERRIDES (CRITICAL FOR PDF) */
 /* ==================================================== */
 @media print {

@@ -718,6 +718,18 @@
       grid.appendChild(card);
     });
 
+    if (typeof MagicBento !== 'undefined' && MagicBento.attach) {
+      MagicBento.attach(grid, {
+        cardSelector: '.add-section-card:not(.disabled)',
+        glowColor: '132, 0, 255',
+        particleCount: 8,
+        spotlightRadius: 360,
+        clickEffect: true,
+        enableBorderGlow: true,
+        enableStars: true
+      });
+    }
+
     modal.classList.add('open');
   }
 

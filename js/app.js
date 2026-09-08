@@ -94,6 +94,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setupEventListeners();
+
+    if (typeof MagicBento !== 'undefined' && MagicBento.initAllOptionMenus) {
+      MagicBento.initAllOptionMenus();
+    }
   }
 
   // --- ROUTING / SCREEN TRANSITIONS ---
